@@ -1,0 +1,67 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CC1B64C6-3B29-40D1-A3DF-2CF34035D1D8}|Project 30 [ Simple Calculator Form ].csproj|e:\\users\\m\\source\\repos\\project 30 [ simple calculator form ]\\frmsimplecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{CC1B64C6-3B29-40D1-A3DF-2CF34035D1D8}|Project 30 [ Simple Calculator Form ].csproj|solutionrelative:frmsimplecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC1B64C6-3B29-40D1-A3DF-2CF34035D1D8}|Project 30 [ Simple Calculator Form ].csproj|E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\frmsimplecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC1B64C6-3B29-40D1-A3DF-2CF34035D1D8}|Project 30 [ Simple Calculator Form ].csproj|solutionrelative:frmsimplecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 186,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "frmSimpleCalculator.cs",
+              "DocumentMoniker": "E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\frmSimpleCalculator.cs",
+              "RelativeDocumentMoniker": "frmSimpleCalculator.cs",
+              "ToolTip": "E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\frmSimpleCalculator.cs",
+              "RelativeToolTip": "frmSimpleCalculator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEBAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-12T13:48:48.608Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "frmSimpleCalculator.cs [Design]",
+              "DocumentMoniker": "E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\frmSimpleCalculator.cs",
+              "RelativeDocumentMoniker": "frmSimpleCalculator.cs",
+              "ToolTip": "E:\\Users\\m\\source\\repos\\Project 30 [ Simple Calculator Form ]\\frmSimpleCalculator.cs [Design]",
+              "RelativeToolTip": "frmSimpleCalculator.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-12T12:16:06.624Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 64,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
