@@ -1,226 +1,238 @@
 # 🧮 Project 30 — Simple Calculator Form
 
-> A fully functional C# Windows Forms calculator with dark/light theme toggle, cascading backspace logic, percentage support, and enum-based state machine.
+> A dark/light theme calculator in C# — built with Form, TextBox, and Button only. The screen is both display and data model. Features an intelligent 6-case delete and percentage with proper undo.
 
 ---
 
-<img width="350" height="500" alt="image" src="https://github.com/user-attachments/assets/98a6be33-010a-4b2b-9314-0ac18d0090b2" />
+<img width="350" height="500" alt="image" src="https://github.com/user-attachments/assets/f9c8dcad-9b5f-4be4-b693-97c71d941fe8" />
 
 
 ---
 
 ## 🚀 Project Overview
 
-A calculator looks simple from the outside.
+Sixth project in the WinForms self-practice series.
 
-Building one properly is a different story.
+This one is a milestone.
 
-At every moment, the calculator has to know:
+No Labels anywhere — only Form, TextBox, and Button.
 
-- Are we entering the first number or the second?
-- Has an operator been selected yet?
-- Are we currently showing a result?
+A classic calculator. But built with real engineering underneath.
 
-This project handles all of that using a clean **enum-based state machine** backed by **nullable types**, a **6-branch cascading backspace**, percentage support for both operands, and a live dark/light theme toggle.
+The screen TextBox is not just a display.
 
-Every button knows its role.
-Every state is tracked.
-Every action is fully reversible.
+It is the data model.
 
----
+Every digit typed, every operator pressed, every result calculated — everything lives on the screen. Operands are parsed back from it when needed.
 
-## 🏗 Architecture
-
-```
-frmSimpleCalculator
-│
-├── 📊 State Machine
-│   ├── enCurrentOperand { Operand1 | Operand2 | Result }
-│   ├── Nullable<Double>  Operand1
-│   ├── Nullable<Double>  Operand2
-│   └── Nullable<char>    Operator
-│
-├── 🎯 Input Handlers
-│   ├── btnDigit_Click()     ──► AddDigit()
-│   ├── btnOperator_Click()  ──► AddOperator()
-│   └── btn_Click()          ──► [ C | Del | % | = | . | Theme ]
-│
-├── 🧠 Core Logic
-│   ├── AddDigit / AddOperator / AddPercentage
-│   ├── Delete()      — 6-branch cascading backspace
-│   ├── ShowResult()  / CalculateResult()
-│   └── ChangeTheme() — Dark ↔ Light
-│
-└── 📺 Display
-    └── txtScreen (TextBox) — sole UI output surface
-```
+The Delete button handles six different scenarios depending on what the last character is. Percentage applies to the actual stored value and can be properly reversed. The theme toggles between dark and light with one click.
 
 ---
 
-## ⚙ Core Functionalities
+## 🏗️ Architecture Design
 
-| Feature | Behavior |
-|---|---|
-| Basic Arithmetic | Addition, Subtraction, Multiplication, Division |
-| Percentage | Applies to either operand correctly |
-| Cascading Delete | Result → Operator → % → Decimal Point → Digit |
-| Clear | Resets all state and clears screen |
-| Division by Zero | Detects and shows a "Math Error!" message |
-| Decimal Point | Full floating-point input support |
-| Theme Toggle | Switches between Dark and Light modes instantly |
-
----
-
-## 💡 Design Decisions
-
-**1. Nullable Types for Operands and Operator**
-
-`Nullable<Double>` and `Nullable<char>` are used intentionally.
-
-`null` means "not entered yet" — not zero, not an empty string.
-
-This removes all ambiguity from state checks.
-
----
-
-**2. Enum-Based State Machine**
+**State**
 
 ```csharp
+Nullable<Double> Operand1 = null, Operand2 = null;
+Nullable<char>   Operator  = null;
+
 enum enCurrentOperand { Operand1, Operand2, Result }
+enCurrentOperand CurrentOperand = enCurrentOperand.Operand1;
 ```
 
-The calculator always knows exactly where it is.
+**Three event handlers cover all 20 buttons**
 
-Every input decision branches on `CurrentOperand`.
+```
+btn_Click               (special buttons — Tag-based switch)
+ ├── "Clear"       → Clear()         reset all state
+ ├── "Delete"      → Delete()        6-case intelligent delete
+ ├── "%"           → AddPercentage() ÷100 on value + screen symbol
+ ├── "="           → ShowResult()    calculate + display
+ ├── "."           → AddFractionPoint()
+ └── "ChangeTheme" → ChangeTheme()   toggles BackColor
+
+btnDigit_Click          (0–9 buttons)
+ └── AddDigit(btn)
+      ├── AddCharacterToScreen(btn.Tag)
+      ├── (Operand1 mode) → Operand1 = Double.Parse(screen)
+      └── (Operand2 mode) → Operand2 = Double.Parse(screen.Split(operator)[1])
+
+btnOperator_Click       (+, -, ×, ÷ buttons)
+ └── AddOperator(btn)
+      ├── AddCharacterToScreen(btn.Tag)
+      ├── Operator = btn.Tag[0]
+      └── CurrentOperand = Operand2
+```
 
 ---
 
-**3. Button Tag Dispatch**
+## ⚙️ Core Functionalities
 
-All utility buttons share one `btn_Click` handler.
+| Button | Action |
+|---|---|
+| 0–9 | Append digit to screen and update current operand |
+| + - × ÷ | Append operator, store it, switch to Operand2 mode |
+| % | Divide current operand by 100, show % symbol on screen |
+| = | Calculate result, show full expression + answer |
+| Del | Smart delete — handles 6 different screen states |
+| C | Clear everything — screen, values, and state |
+| . | Append decimal point to current number |
+| Change Theme | Toggle between dark (black) and light (white) |
 
-Routing is done via the `Tag` property — not button names or positions.
+---
+
+## 🧠 Design Decisions Worth Noting
+
+### The screen is the model
+
+There is no separate variable holding the display string.
+
+The TextBox IS the data store.
+
+When Operand2 is needed, it is extracted from the screen text:
 
 ```csharp
-switch (((Button)sender).Tag)
+private void AddDigitToOperand2()
 {
-    case "Clear":       Clear();         break;
-    case "Delete":      Delete();        break;
-    case "%":           AddPercentage(); break;
-    case "=":           ShowResult();    break;
-    case ".":           AddFractionPoint(); break;
-    case "ChangeTheme": ChangeTheme();   break;
+    string[] Operands = txtScreen.Text.Split(Convert.ToChar(Operator));
+    Operand2 = Convert.ToDouble(Operands[1]);
 }
 ```
 
-Event logic stays centralized and clean.
+The screen stores "5+3" and the code splits on '+' to get the second operand.
+
+This eliminates a second synchronization problem — display and data cannot go out of sync because they are the same thing.
 
 ---
 
-**4. Cascading Delete Logic**
-
-`Delete()` doesn't just remove one character.
-
-It checks what the last thing entered was — and undoes it correctly:
+### Nullable state — semantically accurate
 
 ```csharp
-private void Delete()
+Nullable<Double> Operand1 = null;
+Nullable<char>   Operator  = null;
+```
+
+`null` means "not set yet" — not zero, not empty, not -9999.
+
+When Operand1 is null, nothing has been entered yet. When Operator is null, no operator has been pressed yet. The state means exactly what it says.
+
+---
+
+### 6-case intelligent Delete
+
+`Delete()` figures out what to erase based on what the last character is:
+
+```
+1. Screen empty          → do nothing
+2. Showing result        → peel back the full result to pre-equals state
+3. Last char is operator → remove operator, reset to Operand1 mode
+4. Last char is %        → reverse the ÷100 calculation, remove symbol
+5. Last char is .        → just remove the decimal point
+6. In Operand2 mode      → remove last digit from Operand2
+7. Default               → remove last digit from Operand1
+```
+
+Each case is a dedicated private function. `Delete()` just routes to the right one.
+
+---
+
+### Percentage with proper undo
+
+Adding % is not just visual:
+
+```csharp
+private void AddPercentage()
 {
-    if (IsResultEqualCurrent())             DeleteResult();
-    else if (IsLastIndexEqualOperator())    DeleteOperator();
-    else if (IsLastIndexEqualPercentage())  DeletePercentage();
-    else if (IsLastIndexEqualPoint())       DeleteLastCharacterInScreen();
-    else if (IsOperand2EqualCurrent())      DeleteLastDigitFromOperand2();
-    else                                    DeleteLastDigitFromOperand1();
+    if (IsOperand2EqualCurrent())
+        Operand2 /= 100;   // changes the actual value
+    else
+        Operand1 /= 100;
+
+    AddPercentageToScreen();   // shows % on screen
 }
 ```
 
-Six branches. Each one handles a different state.
+The stored operand is actually divided by 100.
+
+Pressing Del on a % reverses it by multiplying back by 100.
+
+The symbol and the value stay in sync.
 
 ---
 
-**5. Screen as Source of Truth for Operand2**
+### Division by zero protection
 
-When a digit is typed after the operator, `Operand2` is parsed directly from the screen:
+Before calculating, one check:
 
 ```csharp
-string[] Operands = txtScreen.Text.Split(Convert.ToChar(Operator));
-Operand2 = Convert.ToDouble(Operands[1]);
+private bool IsDividingByZero()
+{
+    return (Operator == '÷' && Operand2 == 0);
+}
 ```
 
-No separate string buffer needed.
+If true, the screen shows:
+
+```
+Math Error!
+Press C To Clear
+```
+
+No exception, no crash. Clear message, clear action.
 
 ---
 
-**6. Result Display with `Environment.NewLine`**
-
-The result appears below the full expression:
-
-```
-5+3=
-8
-```
-
-`Environment.NewLine` is used instead of `\n` for proper cross-platform line breaks.
-
----
-
-**7. Theme Detection via `BackColor` Comparison**
+### Theme toggle in two checks
 
 ```csharp
-if (this.BackColor == Color.Black)
-    ChangeToLightTheme();
-else
-    ChangeToDarkTheme();
+private void ChangeTheme()
+{
+    if (this.BackColor == Color.Black)
+        ChangeToLightTheme();
+    else
+        ChangeToDarkTheme();
+}
 ```
 
-No extra flag or boolean needed.
-The UI itself holds the state.
+The current BackColor IS the state. No extra boolean needed.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 | | |
 |---|---|
-| Language | C# |
-| Framework | .NET Framework |
-| UI Platform | Windows Forms (WinForms) |
-| IDE | Visual Studio |
+| **Language** | C# |
+| **Framework** | .NET Framework |
+| **UI** | Windows Forms (WinForms) |
+| **IDE** | Visual Studio |
+| **Type** | Desktop Application |
+| **Controls Used** | Form, TextBox, Button |
+
+> Note: No Label control used in this project — only 3 controls total.
 
 ---
 
-## 🎯 Practice Series — Stage Two · Course 14 · C# Level 1
+## 📦 Practice Project Series
 
-> Controls constraint: **Form · Label · TextBox · Button** (or subset)
-> Mastering depth before expanding to new controls.
-
-| Project | Name | Controls Used |
-|---|---|---|
-| Project 23 | Pizza Order Form | Form · Label · TextBox · Button |
-| Project 24 | Tic-Tac-Toe Game | Form · Label · TextBox · Button |
-| Project 25 | Tax Calculator Form | Form · Label · TextBox · Button |
-| Project 26 | Text Encryption Form | Form · Label · TextBox · Button |
-| Project 27 | Password Generator Form | Form · Label · TextBox · Button |
-| Project 28 | Age Calculator Form | Form · Label · TextBox · Button |
-| Project 29 | String Manipulation Form | Form · Label · TextBox · Button |
-| **Project 30** | **Simple Calculator Form** ✅ | **Form · TextBox · Button** |
+| Project | Application |
+|---|---|
+| **Project 25 — Tax Calculator** | Tax computation + session history |
+| **Project 26 — Text Encryption** | Caesar Cipher encrypt/decrypt |
+| **Project 27 — Password Generator** | GUID + Key + Password generator |
+| **Project 28 — Age Calculator** | Full age breakdown with time lived |
+| **Project 29 — String Manipulation** | Live string operations toolkit |
+| **Project 30 — Simple Calculator** *(you are here)* | Full calculator with theme toggle |
+| More projects | Next control groups 🔄 |
 
 ---
 
-## 🏁 Milestone Context
+## 🏁 Course & Milestone Context
 
-Project 30 is the 8th project in the Stage Two WinForms practice series.
-
-The series deliberately works within a tight control constraint — not because of a technical limit, but to force deeper thinking within a small surface area.
-
-This calculator intentionally drops the Label.
-
-The TextBox carries the full display responsibility on its own.
-
-Eight projects.
-Three or four controls.
-Real engineering thinking.
+- ✅ Course 14 — C# Level 1 (Stage Two, in progress)
+- ✅ Sixth project in the WinForms self-practice series
+- ✅ Part of the **Programming Advices Roadmap** — Stage Two
 
 ---
 
@@ -232,18 +244,10 @@ Thank you to:
 
 **[Dr. Mohammed Abu-Hadhoud](https://programmingadvices.com)**
 
-The real value of this roadmap is not just what it teaches.
-
-It's *when* it teaches it — and *why* it teaches it in that exact order.
-
 ---
 
-## 🚀 What's Next?
+## 🔥 What's Next
 
-More projects.
+Next control group.
 
-New controls.
-
-Deeper systems.
-
-The foundation keeps getting stronger — Insha'Allah.
+Next project.
